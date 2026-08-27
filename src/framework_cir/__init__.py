@@ -1,5 +1,6 @@
 """Framework CIR — Canonical Intermediate Representation extractor."""
 
+from framework_cir.evidence import Reconstruction, reconstruct
 from framework_cir.extract import (
     AUTOGEN_RULES,
     CIR_VERSION,
@@ -23,11 +24,13 @@ __all__ = [
     "Anchor",
     "FieldRecord",
     "Observation",
+    "Reconstruction",
     "ScanResult",
     "apply_rules",
     "discover",
     "emit_cir",
     "git_head",
+    "reconstruct",
     "scan_repo",
     "__version__",
 ]

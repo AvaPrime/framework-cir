@@ -2,6 +2,9 @@
 
 Uses only Observation.{kind, detail, source_location}.
 No product vocabulary. Not wired into reconstruct().
+
+bind() remains pairwise (M1.6-A/B API).
+bind_set() is the M1.6-C multi-observation entry point.
 """
 
 from __future__ import annotations
@@ -26,7 +29,6 @@ _LOC = re.compile(
     r"^(?P<module>[^:]+)(?::(?P<owner>[A-Za-z_][\w]*)\.(?P<member>[A-Za-z_][\w]*))?$"
 )
 
-# Role pairs that are complementary in structure, not in product branding.
 _COMPLEMENTS = {
     frozenset({"write", "read"}),
     frozenset({"persist", "restore"}),
@@ -34,6 +36,22 @@ _COMPLEMENTS = {
     frozenset({"checkpoint", "resume"}),
     frozenset({"tools/list", "tools/call"}),
     frozenset({"list_tools", "call_tool"}),
+}
+
+# Closed polarity families for C1. Not product names.
+_PUT = frozenset(
+    {"write", "persist", "put", "checkpoint", "snapshot", "store", "emit", "serialize", "save"}
+)
+_GET = frozenset(
+    {"read", "restore", "get", "resume", "hydrate", "load", "consume", "deserialize"}
+)
+
+# Same-owner pairs that look related but are not complementary I/O.
+_NOT_COMPLEMENTARY = {
+    frozenset({"save", "log"}),
+    frozenset({"create", "delete"}),
+    frozenset({"send", "receive"}),
+    frozenset({"append", "iterate"}),
 }
 
 
@@ -106,9 +124,23 @@ def _parse(obs: Observation) -> _Parsed:
     )
 
 
+def _flatten_roles() -> frozenset[str]:
+    out: set[str] = set(_PUT | _GET)
+    for pair in _COMPLEMENTS:
+        out.update(pair)
+    return frozenset(out)
+
+
 def _complementary(a: _Parsed, b: _Parsed) -> bool:
     combo = a.tokens | b.tokens
-    return any(pair <= combo for pair in _COMPLEMENTS)
+    if any(pair <= combo for pair in _COMPLEMENTS):
+        return True
+    return bool(a.tokens & _PUT and b.tokens & _GET) or bool(a.tokens & _GET and b.tokens & _PUT)
+
+
+def _explicitly_not_complementary(a: _Parsed, b: _Parsed) -> bool:
+    combo = a.tokens | b.tokens
+    return any(pair <= combo for pair in _NOT_COMPLEMENTARY)
 
 
 def bind(*observations: Observation) -> BindDecision:
@@ -124,7 +156,7 @@ def bind(*observations: Observation) -> BindDecision:
         return BindDecision(
             "insufficient_evidence",
             None,
-            "binder scores pairs only",
+            "binder scores pairs only; use bind_set for bags",
             obs,
         )
 
@@ -156,21 +188,29 @@ def bind(*observations: Observation) -> BindDecision:
             obs,
         )
 
-    if left.owner and right.owner and left.owner == right.owner and _complementary(left, right):
-        ident = MechanismIdentity(
-            subject_scope=left.module,
-            ownership=left.owner,
-            state_domain=left.owner,
-            io_relationship="complementary",
-            lifecycle_relationship="paired",
-            evidence_basis=(
-                f"same owner {left.owner}",
-                f"modules {left.module},{right.module}",
-                f"roles {sorted(left.tokens & _flatten_roles())} / {sorted(right.tokens & _flatten_roles())}",
-            ),
-            highest_layer="mechanism",
-        )
-        return BindDecision("bound", ident, "same owner and complementary roles", obs)
+    if left.owner and right.owner and left.owner == right.owner:
+        if _explicitly_not_complementary(left, right):
+            return BindDecision(
+                "unbound",
+                None,
+                "same owner but roles are related, not complementary",
+                obs,
+            )
+        if _complementary(left, right):
+            ident = MechanismIdentity(
+                subject_scope=left.module,
+                ownership=left.owner,
+                state_domain=left.owner,
+                io_relationship="complementary",
+                lifecycle_relationship="paired",
+                evidence_basis=(
+                    f"same owner {left.owner}",
+                    f"modules {left.module},{right.module}",
+                    f"roles {sorted(left.tokens & _flatten_roles())} / {sorted(right.tokens & _flatten_roles())}",
+                ),
+                highest_layer="mechanism",
+            )
+            return BindDecision("bound", ident, "same owner and complementary roles", obs)
 
     return BindDecision(
         "insufficient_evidence",
@@ -180,8 +220,12 @@ def bind(*observations: Observation) -> BindDecision:
     )
 
 
-def _flatten_roles() -> frozenset[str]:
-    out: set[str] = set()
-    for pair in _COMPLEMENTS:
-        out.update(pair)
-    return frozenset(out)
+def bind_set(observations: list[Observation]) -> list[BindDecision]:
+    """Score every pair in a bag. Unrelated items do not reinforce each other."""
+    out: list[BindDecision] = []
+    for i, a in enumerate(observations):
+        for b in observations[i + 1 :]:
+            out.append(bind(a, b))
+    if len(observations) == 1:
+        out.append(bind(observations[0]))
+    return out

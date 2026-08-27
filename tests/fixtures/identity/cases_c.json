@@ -1,0 +1,22 @@
+{
+  "experiment": "M1.6-C",
+  "c1_pairs": [
+    {"id": "persist-restore", "expected": "bound", "a": "write persist@store.py:Store.persist", "b": "read restore@store.py:Store.restore"},
+    {"id": "snapshot-hydrate", "expected": "bound", "a": "snapshot@engine.py:Engine.snapshot", "b": "hydrate@engine.py:Engine.hydrate"},
+    {"id": "store-load", "expected": "bound", "a": "store@disk.py:Disk.store", "b": "load@disk.py:Disk.load"},
+    {"id": "emit-consume", "expected": "bound", "a": "emit@bus.py:Bus.emit", "b": "consume@bus.py:Bus.consume"},
+    {"id": "serialize-deserialize", "expected": "bound", "a": "serialize@codec.py:Codec.serialize", "b": "deserialize@codec.py:Codec.deserialize"},
+    {"id": "save-log", "expected": "unbound", "a": "save@agent.py:Agent.save", "b": "log@agent.py:Agent.log"},
+    {"id": "create-delete", "expected": "unbound", "a": "create@repo.py:Repo.create", "b": "delete@repo.py:Repo.delete"},
+    {"id": "send-receive", "expected": "unbound", "a": "send@net.py:Net.send", "b": "receive@net.py:Net.receive"},
+    {"id": "append-iterate", "expected": "unbound", "a": "append@mem.py:Mem.append", "b": "iterate@mem.py:Mem.iterate"}
+  ],
+  "c2_bag": [
+    {"kind": "ast_code_match", "detail": "write", "source_location": "rt.py:A.write"},
+    {"kind": "ast_code_match", "detail": "read", "source_location": "rt.py:A.read"},
+    {"kind": "ast_code_match", "detail": "inspect", "source_location": "rt.py:A.inspect"},
+    {"kind": "ast_code_match", "detail": "save", "source_location": "rt.py:B.save"},
+    {"kind": "ast_code_match", "detail": "load", "source_location": "rt.py:B.load"},
+    {"kind": "ast_attribute", "detail": "append", "source_location": "noise.py:Noise.append"}
+  ]
+}

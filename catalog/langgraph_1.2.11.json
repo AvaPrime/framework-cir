@@ -1,0 +1,52 @@
+{
+  "cir_version": "1.0.2",
+  "entity_metadata": {
+    "name": "LangGraph",
+    "version": "1.2.11",
+    "commit_hash": "bdb8a9c7a4aa1390af225f6a5d292e5088659bd5",
+    "source_url": "https://github.com/langchain-ai/langgraph",
+    "analyzed_at": "2026-08-27T11:20:00Z"
+  },
+  "extraction_metadata": {
+    "ast_parser": "python-ast + github_code_search + raw file read",
+    "llm_model": "none_for_labeling_human_corroborated",
+    "corroboration_rules_version": "1.0.0"
+  },
+  "memory_primitive": {
+    "architecture_model": "state_graph",
+    "context_scope": "thread",
+    "persistence_mechanism": "sqlite_checkpoint",
+    "mutation_rule": "reducer_merge",
+    "retrieval_trigger": "deterministic_pass",
+    "determinism_guarantee": "full_checkpointed",
+    "epistemic_provenance_support": false,
+    "notes": "Typed state channels + Checkpointer. SqliteSaver in langgraph-checkpoint-sqlite."
+  },
+  "routing_primitive": {
+    "topology": "cyclic_graph",
+    "execution_mode": "checkpointed_state_machine",
+    "router_type": "static_conditional_edge",
+    "cycle_recovery_mechanism": "human_in_the_loop_interrupt",
+    "mcp_native": false,
+    "notes": "MCP is not in libs/langgraph; it arrives via langchain-mcp-adapters."
+  },
+  "mcp_integration": {
+    "host_location": "adapter_package",
+    "agent_dsl_field": "tools",
+    "primitives": {"tools": true, "resources": true, "prompts": true},
+    "transports": ["stdio", "streamable_http", "sse"],
+    "tool_filtering": "manual",
+    "session_model": "per_call_stateless",
+    "exposes_agent_as_server": true,
+    "list_changed_subscriptions": false,
+    "package": "langchain-mcp-adapters (MultiServerMCPClient)",
+    "notes": "Default session is a fresh ClientSession per tool call. Agent Server can expose /mcp."
+  },
+  "evidence_anchors": [
+    {"claim": "memory.architecture_model = state_graph", "evidence_type": "ast_code_match", "confidence_score": 0.99, "source_location": "libs/langgraph/langgraph/graph/state.py:class StateGraph"},
+    {"claim": "memory.mutation_rule = reducer_merge", "evidence_type": "ast_code_match", "confidence_score": 0.97, "source_location": "libs/langgraph/langgraph/graph/state.py:_is_field_binop"},
+    {"claim": "memory.persistence_mechanism includes sqlite_checkpoint", "evidence_type": "ast_code_match", "confidence_score": 0.98, "source_location": "libs/checkpoint-sqlite/langgraph/checkpoint/sqlite/__init__.py:class SqliteSaver"},
+    {"claim": "routing.cycle_recovery_mechanism = human_in_the_loop_interrupt", "evidence_type": "ast_code_match", "confidence_score": 0.95, "source_location": "libs/langgraph/langgraph/graph/state.py:compile(interrupt_before, interrupt_after)"},
+    {"claim": "mcp_integration.host_location = adapter_package", "evidence_type": "ast_code_match", "confidence_score": 0.97, "source_location": "langchain-mcp-adapters/client.py:class MultiServerMCPClient"}
+  ]
+}

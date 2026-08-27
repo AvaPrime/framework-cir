@@ -1,0 +1,51 @@
+{
+  "cir_version": "1.0.2",
+  "entity_metadata": {
+    "name": "CrewAI",
+    "version": "1.15.17",
+    "commit_hash": "fcdeb3d98d8537e71f36a22fe23c2828c8b98754",
+    "source_url": "https://github.com/crewAIInc/crewAI",
+    "analyzed_at": "2026-08-27T11:20:00Z"
+  },
+  "extraction_metadata": {
+    "ast_parser": "python-ast + local sparse clone of lib/",
+    "llm_model": "none_for_labeling_human_corroborated",
+    "corroboration_rules_version": "1.0.0"
+  },
+  "memory_primitive": {
+    "architecture_model": "hybrid",
+    "context_scope": "global",
+    "persistence_mechanism": "vector_db",
+    "mutation_rule": "time_decay",
+    "retrieval_trigger": "semantic_similarity",
+    "determinism_guarantee": "none_stochastic",
+    "epistemic_provenance_support": true,
+    "notes": "Unified Memory + MemoryScope. LanceDB default. MemoryRecord.source/private."
+  },
+  "routing_primitive": {
+    "topology": "hierarchical_swarm",
+    "execution_mode": "sync_blocking",
+    "router_type": "llm_decision_node",
+    "cycle_recovery_mechanism": "none",
+    "mcp_native": true,
+    "notes": "Default Process.sequential; hierarchical manager optional."
+  },
+  "mcp_integration": {
+    "host_location": "in_tree",
+    "agent_dsl_field": "mcps",
+    "primitives": {"tools": true, "resources": false, "prompts": false},
+    "transports": ["stdio", "streamable_http", "sse"],
+    "tool_filtering": "static_and_dynamic",
+    "session_model": "long_lived",
+    "exposes_agent_as_server": false,
+    "list_changed_subscriptions": false,
+    "package": "crewai.mcp (+ crewai_tools.adapters.mcp_adapter)",
+    "notes": "Agent.mcps accepts MCPServerStdio | MCPServerHTTP | MCPServerSSE."
+  },
+  "evidence_anchors": [
+    {"claim": "memory.architecture_model = hybrid", "evidence_type": "ast_code_match", "confidence_score": 0.96, "source_location": "lib/crewai/src/crewai/memory/unified_memory.py:class Memory"},
+    {"claim": "memory.persistence_mechanism = vector_db", "evidence_type": "ast_code_match", "confidence_score": 0.97, "source_location": "lib/crewai/src/crewai/memory/storage/lancedb_storage.py"},
+    {"claim": "mcp_integration.host_location = in_tree", "evidence_type": "ast_code_match", "confidence_score": 0.98, "source_location": "lib/crewai/src/crewai/mcp/__init__.py"},
+    {"claim": "mcp_integration.tool_filtering = static_and_dynamic", "evidence_type": "ast_code_match", "confidence_score": 0.96, "source_location": "lib/crewai/src/crewai/mcp/filters.py"}
+  ]
+}

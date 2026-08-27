@@ -1,0 +1,50 @@
+{
+  "cir_version": "1.0.2",
+  "entity_metadata": {
+    "name": "AutoGen",
+    "version": "0.7.5",
+    "commit_hash": "027ecf0a379bcc1d09956d46d12d44a3ad9cee14",
+    "source_url": "https://github.com/microsoft/autogen",
+    "analyzed_at": "2026-08-27T11:20:00Z"
+  },
+  "extraction_metadata": {
+    "ast_parser": "github_code_search + file contents",
+    "llm_model": "none_for_labeling_human_corroborated",
+    "corroboration_rules_version": "1.0.0"
+  },
+  "memory_primitive": {
+    "architecture_model": "message_log",
+    "context_scope": "thread",
+    "persistence_mechanism": "ephemeral_ram",
+    "mutation_rule": "append_only",
+    "retrieval_trigger": "explicit_tool_call",
+    "determinism_guarantee": "none_stochastic",
+    "epistemic_provenance_support": false,
+    "notes": "autogen_core.memory.ListMemory. Teachability is experimental."
+  },
+  "routing_primitive": {
+    "topology": "event_driven",
+    "execution_mode": "async_event_loop",
+    "router_type": "llm_decision_node",
+    "cycle_recovery_mechanism": "recursion_limit_exception",
+    "mcp_native": false,
+    "notes": "Teams coordinate via async message passing."
+  },
+  "mcp_integration": {
+    "host_location": "none",
+    "agent_dsl_field": "none",
+    "primitives": {"tools": false, "resources": false, "prompts": false},
+    "transports": [],
+    "tool_filtering": "none",
+    "session_model": "none",
+    "exposes_agent_as_server": false,
+    "list_changed_subscriptions": false,
+    "package": null,
+    "notes": "No first-class MCP host in autogen-agentchat 0.7.5. Do not back-attribute Microsoft Agent Framework 1.0."
+  },
+  "evidence_anchors": [
+    {"claim": "package version 0.7.5", "evidence_type": "ast_code_match", "confidence_score": 0.99, "source_location": "python/packages/autogen-agentchat/pyproject.toml"},
+    {"claim": "memory.architecture_model = message_log", "evidence_type": "ast_code_match", "confidence_score": 0.94, "source_location": "python/packages/autogen-core/src/autogen_core/memory/_list_memory.py"},
+    {"claim": "mcp_integration.host_location = none", "evidence_type": "inferred_pattern", "confidence_score": 0.80, "source_location": "github code search at analyzed commit"}
+  ]
+}

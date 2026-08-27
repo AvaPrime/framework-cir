@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CanonicalIntermediateRepresentation",
+  "version": "1.0.2",
+  "type": "object",
+  "required": [
+    "cir_version",
+    "entity_metadata",
+    "memory_primitive",
+    "routing_primitive",
+    "mcp_integration",
+    "evidence_anchors"
+  ],
+  "properties": {
+    "cir_version": { "type": "string", "const": "1.0.2" },
+    "entity_metadata": {
+      "type": "object",
+      "required": ["name", "version", "commit_hash", "source_url"]
+    },
+    "extraction_metadata": { "type": "object" },
+    "memory_primitive": { "type": "object" },
+    "routing_primitive": { "type": "object" },
+    "mcp_integration": {
+      "type": "object",
+      "required": [
+        "host_location",
+        "agent_dsl_field",
+        "primitives",
+        "transports",
+        "tool_filtering",
+        "session_model",
+        "exposes_agent_as_server",
+        "list_changed_subscriptions"
+      ],
+      "properties": {
+        "host_location": {
+          "type": "string",
+          "enum": ["in_tree", "adapter_package", "provider_hosted", "none"]
+        },
+        "agent_dsl_field": {
+          "type": "string",
+          "enum": ["mcps", "mcp_servers", "toolsets", "tools", "none"]
+        },
+        "primitives": {
+          "type": "object",
+          "required": ["tools", "resources", "prompts"],
+          "properties": {
+            "tools": { "type": "boolean" },
+            "resources": { "type": "boolean" },
+            "prompts": { "type": "boolean" }
+          }
+        },
+        "transports": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["stdio", "streamable_http", "sse", "hosted"]
+          }
+        },
+        "tool_filtering": {
+          "type": "string",
+          "enum": ["none", "manual", "static", "static_and_dynamic"]
+        },
+        "session_model": {
+          "type": "string",
+          "enum": ["none", "per_call_stateless", "long_lived", "provider_hosted"]
+        },
+        "exposes_agent_as_server": { "type": "boolean" },
+        "list_changed_subscriptions": { "type": "boolean" },
+        "package": { "type": ["string", "null"] },
+        "notes": { "type": "string" }
+      }
+    },
+    "evidence_anchors": { "type": "array" }
+  }
+}

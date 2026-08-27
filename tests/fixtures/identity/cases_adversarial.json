@@ -1,0 +1,65 @@
+{
+  "experiment": "M1.6-B-adversarial",
+  "note": "Theory labels. Original nine cases stay frozen. Binder is not edited to chase this set.",
+  "cases": [
+    {
+      "id": "reordered-persist-restore",
+      "expected": "bound",
+      "why": "order must not matter",
+      "a": {"kind": "ast_code_match", "detail": "read restore", "source_location": "store.py:Store.restore"},
+      "b": {"kind": "ast_code_match", "detail": "write persist", "source_location": "store.py:Store.persist"}
+    },
+    {
+      "id": "renamed-owner",
+      "expected": "bound",
+      "why": "owner token changed; same structural pair",
+      "a": {"kind": "ast_code_match", "detail": "write persist", "source_location": "boring.py:CompletelyBoring.persist"},
+      "b": {"kind": "ast_code_match", "detail": "read restore", "source_location": "boring.py:CompletelyBoring.restore"}
+    },
+    {
+      "id": "nested-module-path",
+      "expected": "bound",
+      "why": "package path is scope, Class is owner",
+      "a": {"kind": "ast_code_match", "detail": "write persist", "source_location": "pkg/runtime/store.py:Store.persist"},
+      "b": {"kind": "ast_code_match", "detail": "read restore", "source_location": "pkg/runtime/store.py:Store.restore"}
+    },
+    {
+      "id": "write-read-unlisted-verbs",
+      "expected": "bound",
+      "why": "write/read still present around snapshot/hydrate",
+      "a": {"kind": "ast_code_match", "detail": "write snapshot", "source_location": "engine.py:Engine.snapshot"},
+      "b": {"kind": "ast_code_match", "detail": "read hydrate", "source_location": "engine.py:Engine.hydrate"}
+    },
+    {
+      "id": "unlisted-verbs-only",
+      "expected": "bound",
+      "why": "same owner, complementary lifecycle; verbs not in _COMPLEMENTS",
+      "a": {"kind": "ast_code_match", "detail": "snapshot", "source_location": "engine.py:Engine.snapshot"},
+      "b": {"kind": "ast_code_match", "detail": "hydrate", "source_location": "engine.py:Engine.hydrate"}
+    },
+    {
+      "id": "partial-owner",
+      "expected": "insufficient_evidence",
+      "why": "one side has no Class owner",
+      "a": {"kind": "ast_code_match", "detail": "write persist", "source_location": "store.py:persist"},
+      "b": {"kind": "ast_code_match", "detail": "read restore", "source_location": "store.py:Store.restore"}
+    },
+    {
+      "id": "pair-plus-noise",
+      "expected": "bound",
+      "why": "a complementary same-owner pair exists among three observations",
+      "observations": [
+        {"kind": "ast_attribute", "detail": "log.append", "source_location": "trace.py:Trace.log"},
+        {"kind": "ast_code_match", "detail": "write persist", "source_location": "store.py:Store.persist"},
+        {"kind": "ast_code_match", "detail": "read restore", "source_location": "store.py:Store.restore"}
+      ]
+    },
+    {
+      "id": "extra-same-verb-other-owner",
+      "expected": "unbound",
+      "why": "Agent.save and Config.save remain distinct even with a third Agent method",
+      "a": {"kind": "ast_code_match", "detail": "write save", "source_location": "agent.py:Agent.save"},
+      "b": {"kind": "ast_code_match", "detail": "write save", "source_location": "config.py:Config.save"}
+    }
+  ]
+}

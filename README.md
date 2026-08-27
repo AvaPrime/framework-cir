@@ -6,6 +6,8 @@ Framework CIR recovers *structure* from agent frameworks — memory, routing, an
 
 This is Layer 1–3 of a larger reverse-engineering stack (evidence acquisition → structural recovery → CIR). Behavioral reconstruction and evolution diffs are planned; they are not claimed as shipped.
 
+This repository is **Framework CIR** (external architectural reconstruction). It is not Codessa's internal control-plane CIR.
+
 ## Why it exists
 
 Agent-framework comparisons are usually feature lists. CIR asks a different question:
@@ -14,7 +16,11 @@ Agent-framework comparisons are usually feature lists. CIR asks a different ques
 
 Every claim carries a source location and a confidence score. AST matches outrank README text.
 
+CIR is descriptive, not authoritative. It says what is recoverable from evidence. It does not say the architecture is correct or that you should adopt it.
+
 ## Current catalog (CIR v1.0.2)
+
+Frozen on branch [`freeze/cir-1.0.2`](https://github.com/AvaPrime/framework-cir/tree/freeze/cir-1.0.2).
 
 | Framework | Version | Memory model | Routing | MCP host |
 |---|---|---|---|---|
@@ -22,16 +28,17 @@ Every claim carries a source location and a confidence score. AST matches outran
 | CrewAI | 1.15.17 | hybrid vector + scope | sequential / hierarchical | in-tree (`crewai.mcp`) |
 | AutoGen | 0.7.5 | message log | event-driven teams | none in core |
 
-See [`catalog/COMPARISON.md`](catalog/COMPARISON.md) for the full matrix.
+See [`catalog/COMPARISON.md`](catalog/COMPARISON.md) for the full matrix. Do not add a fourth catalog row until [CIR-HOLDOUT-001](experiments/CIR-HOLDOUT-001.md) Run A is frozen.
 
 ## Repository layout
 
 ```
 schema/                 CIR JSON Schema (versioned)
-catalog/                Verified CIR documents
+catalog/                Verified CIR documents (signature era)
 src/framework_cir/      Extractor library
 tests/                  Schema + catalog validation
-docs/                   Design notes
+docs/                   Design notes (including derivation draft)
+experiments/            Measurement protocols
 .github/                Issue / PR templates and CI
 ```
 
@@ -72,14 +79,17 @@ python -m framework_cir.validate
 
 - [x] CIR schema v1.0.2 (`memory`, `routing`, `mcp_integration`)
 - [x] Three verified catalog documents
-- [x] Hybrid AST extractor prototype
+- [x] Signature-based AST extractor prototype
+- [x] CIR-HOLDOUT-001 protocol specified
+- [ ] Generic structural detectors + Run A freeze
+- [ ] Derivation records in published schema (1.1)
 - [ ] Layer 6 behavioral / stochastic-drift harness
 - [ ] Layer 7 version-to-version CIR diffs
 - [ ] Layer 8 ecosystem graph
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md). New catalog entries need evidence anchors. Schema changes require a version bump.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md). New catalog entries need evidence anchors. Schema changes require a version bump. Holdout work belongs under `experiments/`, not `catalog/`, until Run B.
 
 ## License
 

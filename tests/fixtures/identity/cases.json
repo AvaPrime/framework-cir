@@ -1,0 +1,69 @@
+{
+  "experiment": "M1.6-identity-corpus",
+  "note": "Expected labels for a future binder. The stub must not implement these.",
+  "cases": [
+    {
+      "id": "same-object-save-restore",
+      "expected": "bound",
+      "why": "complementary roles on one state identity",
+      "a": {"kind": "ast_code_match", "detail": "write persist", "source_location": "store.py:Store.persist"},
+      "b": {"kind": "ast_code_match", "detail": "read restore", "source_location": "store.py:Store.restore"}
+    },
+    {
+      "id": "agent-export-vs-config-save",
+      "expected": "unbound",
+      "why": "same verb, different owners and state domains",
+      "a": {"kind": "ast_code_match", "detail": "write save", "source_location": "agent.py:Agent.save"},
+      "b": {"kind": "ast_code_match", "detail": "write save", "source_location": "config.py:Config.save"}
+    },
+    {
+      "id": "same-state-write-read",
+      "expected": "bound",
+      "why": "write and read share identity argument and class",
+      "a": {"kind": "ast_code_match", "detail": "write put", "source_location": "runtime.py:Session.put"},
+      "b": {"kind": "ast_code_match", "detail": "read get", "source_location": "runtime.py:Session.get"}
+    },
+    {
+      "id": "unrelated-appends",
+      "expected": "unbound",
+      "why": "same method name, different lists",
+      "a": {"kind": "ast_attribute", "detail": "log.append", "source_location": "trace.py:Trace.log"},
+      "b": {"kind": "ast_attribute", "detail": "tools.append", "source_location": "toolbox.py:Toolbox.tools"}
+    },
+    {
+      "id": "import-mcp-vs-ordinary-tool",
+      "expected": "unbound",
+      "why": "dependency token is not a protocol client",
+      "a": {"kind": "import", "detail": "mcp", "source_location": "tools.py"},
+      "b": {"kind": "ast_code_match", "detail": "invoke call", "source_location": "http_client.py:Client.call"}
+    },
+    {
+      "id": "mcp-list-and-call-same-session",
+      "expected": "bound",
+      "why": "complementary protocol ops on one client",
+      "a": {"kind": "string_literal", "detail": "tools/list", "source_location": "mcp_session.py:Session.list_tools"},
+      "b": {"kind": "string_literal", "detail": "tools/call", "source_location": "mcp_session.py:Session.call_tool"}
+    },
+    {
+      "id": "readme-vs-unrelated-impl",
+      "expected": "unbound",
+      "why": "no causal connection from claim to code",
+      "a": {"kind": "readme_text", "detail": "native MCP", "source_location": "README.md"},
+      "b": {"kind": "ast_code_match", "detail": "invoke run", "source_location": "cli.py:main"}
+    },
+    {
+      "id": "same-mechanism-different-names",
+      "expected": "bound",
+      "why": "structure not vocabulary: persist/restore vs checkpoint/resume",
+      "a": {"kind": "ast_code_match", "detail": "write checkpoint", "source_location": "engine.py:Engine.checkpoint"},
+      "b": {"kind": "ast_code_match", "detail": "read resume", "source_location": "engine.py:Engine.resume"}
+    },
+    {
+      "id": "lone-save",
+      "expected": "insufficient_evidence",
+      "why": "one observation cannot establish sameness or difference",
+      "a": {"kind": "ast_code_match", "detail": "write save", "source_location": "pkg/export.py:save"},
+      "b": null
+    }
+  ]
+}

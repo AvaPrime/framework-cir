@@ -1,43 +1,34 @@
 # Mechanism identity (M1.6 contract)
 
-Not implemented in `reconstruct()`. Failure to bind is **unknown**, never `false`.
+`bind()` is not wired into `reconstruct()`. It has no authority yet.
 
-## Epistemic rule
+## Three outcomes
 
-```
-same_mechanism(A, B)
-AND complementary_role(A, B)
-AND compatible_scope(A, B)
-    → corroborates(A, B) is legal
-else
-    observations remain observations
-```
-
-`save()` is not persistence. `import mcp` is not MCP protocol support. A `while` loop is not a router until control semantics and mechanism identity are bound.
-
-## Layer hierarchy
-
-same name ≠ same module ≠ same object ≠ same state ≠ same mechanism
-
-A future binder must report the *highest* layer it can justify, with an evidence basis. Corroboration is legal only at layer `mechanism`.
-
-## Record
-
-See `framework_cir.identity.MechanismIdentity`:
-
-- subject_scope, ownership, execution_context, state_domain
-- io_relationship, lifecycle_relationship, temporal_relationship
-- evidence_basis, highest_layer
-
-## Independent tests (not the holdout)
-
-`tests/test_identity_contract.py` locks the stub: `bind()` returns `unbound` and `allows_corroboration()` is false. Distinctions a later binder must separate on *synthetic* fixtures, not smolagents:
-
-| Pair | Same verb / name | Same mechanism? |
+| Status | Means | Does *not* mean |
 |---|---|---|
-| `Agent.save` exports source vs `Store.save(run_id)` | save | no |
-| `import mcp` vs `MCPClient.connect` + transport | mcp | no until bound |
-| `dict.update` vs `memory.steps.append` | mutation-shaped | no |
-| write(state, id) + read(id) same class | save/load | yes, if scope matches |
+| `bound` | Same mechanism justified at layer `mechanism` | The CIR field is true |
+| `unbound` | Evidence establishes *different* mechanisms | The CIR field is false |
+| `insufficient_evidence` | Sameness and difference are both unproven | Negative evidence |
 
-Evaluating a future binder against M1 is allowed. Changing M1 is not.
+The stub returns `insufficient_evidence` for every pair. Claiming `unbound` without a binder would be a false claim of difference.
+
+Corroboration is legal only when `status == bound` and `highest_layer == mechanism`.
+
+## Binding relation (future)
+
+```
+A.state_domain == B.state_domain
+A.owner        == B.owner
+A.lifecycle    ↔ B.lifecycle
+A.role         ⊥ B.role     # complementary, not identical
+```
+
+Not: `A.name ≈ B.name`.
+
+Same mechanism under different names (`checkpoint`/`resume` vs `persist`/`restore`) must be bindable. Same verb on different owners must not.
+
+## Synthetic corpus
+
+`tests/fixtures/identity/cases.json` is the measurement set. It is not smolagents, LangGraph, or CrewAI.
+
+A future binder is measured against those expected labels. The stub is measured against *not implementing them*.

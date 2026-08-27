@@ -1,13 +1,15 @@
 """M1.6 identity contract.
 
-Not a detector. Not wired into reconstruct(). Binding is unimplemented on
-purpose: failure to bind must remain unknown, never negative evidence.
+Not wired into reconstruct(). bind() has no authority to assert architecture.
 
-Predicates (all required before corroborates(A, B) is legal):
+Three outcomes, kept separate on purpose:
 
-    same_mechanism(A, B)
-    AND complementary_role(A, B)
-    AND compatible_scope(A, B)
+    bound                  same mechanism justified
+    unbound                evidence establishes *different* mechanisms
+    insufficient_evidence  identity cannot be established either way
+
+UNBOUND is not INSUFFICIENT_EVIDENCE.
+Neither is persistence=false or MCP=unsupported.
 """
 
 from __future__ import annotations
@@ -17,17 +19,10 @@ from typing import Literal
 
 from framework_cir.models import Observation
 
-BindStatus = Literal["bound", "unbound", "contradicted"]
+BindStatus = Literal["bound", "unbound", "insufficient_evidence"]
 
-IdentityLayer = Literal[
-    "name",
-    "module",
-    "object",
-    "state",
-    "mechanism",
-]
+IdentityLayer = Literal["name", "module", "object", "state", "mechanism"]
 
-# Hierarchy: same name ≠ same module ≠ same object ≠ same state ≠ same mechanism
 IDENTITY_ORDER: tuple[IdentityLayer, ...] = (
     "name",
     "module",
@@ -71,18 +66,23 @@ class BindDecision:
     observations: list[Observation] = field(default_factory=list)
 
     def allows_corroboration(self) -> bool:
-        return self.status == "bound" and self.identity is not None and self.identity.highest_layer == "mechanism"
+        return (
+            self.status == "bound"
+            and self.identity is not None
+            and self.identity.highest_layer == "mechanism"
+        )
 
 
 def bind(*observations: Observation) -> BindDecision:
-    """Identity binder.
+    """Identity binder stub.
 
-    Current implementation always returns unbound. That is the correct default:
-    an unbound pair must not become persistence=false or MCP=unsupported.
+    Always insufficient_evidence. That is the honest default: the stub cannot
+    establish sameness *or* difference. Claiming unbound would be a false
+    negative on identity ("these are different mechanisms") without evidence.
     """
     return BindDecision(
-        status="unbound",
+        status="insufficient_evidence",
         identity=None,
-        reason="identity binder not implemented; observations remain observations",
+        reason="identity binder not implemented; cannot establish sameness or difference",
         observations=list(observations),
     )

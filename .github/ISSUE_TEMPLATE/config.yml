@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security report
+    url: https://github.com/AvaPrime/framework-cir/security/policy
+    about: Please do not file security issues in the public tracker.

@@ -1,49 +1,43 @@
-# Mechanism identity (post-M1 requirement)
+# Mechanism identity (M1.6 contract)
 
-Not implemented in `reconstruct()`. This is the derivation contract that M1 showed is missing.
+Not implemented in `reconstruct()`. Failure to bind is **unknown**, never `false`.
 
-Do not implement as `better_persistence_detector` or `while_loop_means_routing`. Those would be subject-tuned patches. Implement as a *binding* layer that every future corroboration must pass.
-
-## Why this exists
-
-M1 P1 composed `save(A) + write(B) + read(C)` into durable persistence. Those operations were real. They were not one mechanism. M1 P6 composed `import mcp` into MCP-supported. The import was real. It was not the architecture (`mcpadapt` → `MCPClient` → transports → tools).
-
-## Contract
-
-An edge `corroborates(A, B)` is legal only if all of the following hold:
+## Epistemic rule
 
 ```
 same_mechanism(A, B)
 AND complementary_role(A, B)
 AND compatible_scope(A, B)
+    → corroborates(A, B) is legal
+else
+    observations remain observations
 ```
 
-Until those predicates are established, A and B remain observations. They must not become an architectural field.
+`save()` is not persistence. `import mcp` is not MCP protocol support. A `while` loop is not a router until control semantics and mechanism identity are bound.
 
-## Binding dimensions
+## Layer hierarchy
 
-| Dimension | Question |
-|---|---|
-| Subject identity | Same type / instance family? |
-| State identity | Same object being written and later read? |
-| Lifecycle | Same run / session / process boundary? |
-| Call or data relationship | Does A feed B, or only share a verb? |
-| Module / package scope | Same subsystem, or UI vs runtime vs packaging? |
-| Storage identity | Same backing medium? |
+same name ≠ same module ≠ same object ≠ same state ≠ same mechanism
 
-## Pipeline this implies
+A future binder must report the *highest* layer it can justify, with an evidence basis. Corroboration is legal only at layer `mechanism`.
 
-```
-Observation
-    → entity / mechanism identity
-    → scope
-    → relationship
-    → derivation
-    → CIR projection
-```
+## Record
 
-`reconstruct()` today lifts FieldRecords into a graph after the fact. That lift is not this layer. Wiring identity into derivation is a later version. Evaluating that version against M1 is allowed. Changing M1 is not.
+See `framework_cir.identity.MechanismIdentity`:
 
-## Routing, separately
+- subject_scope, ownership, execution_context, state_domain
+- io_relationship, lifecycle_relationship, temporal_relationship
+- evidence_basis, highest_layer
 
-P4's miss is control-flow semantics (condition → iteration → step → termination), not a missing product name. A generic control-flow analyzer is in scope for a later detector *class*. Instantiating it as `while_loop` because smolagents uses a while loop is out of scope until it is specified and tested on fixtures that are not the holdout.
+## Independent tests (not the holdout)
+
+`tests/test_identity_contract.py` locks the stub: `bind()` returns `unbound` and `allows_corroboration()` is false. Distinctions a later binder must separate on *synthetic* fixtures, not smolagents:
+
+| Pair | Same verb / name | Same mechanism? |
+|---|---|---|
+| `Agent.save` exports source vs `Store.save(run_id)` | save | no |
+| `import mcp` vs `MCPClient.connect` + transport | mcp | no until bound |
+| `dict.update` vs `memory.steps.append` | mutation-shaped | no |
+| write(state, id) + read(id) same class | save/load | yes, if scope matches |
+
+Evaluating a future binder against M1 is allowed. Changing M1 is not.

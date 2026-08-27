@@ -1,27 +1,40 @@
 # Thesis
 
-> Generic structural evidence can be converted into reliable architectural reconstruction only when observations can be bound to mechanisms independently of product vocabulary.
+> Framework CIR investigates whether heterogeneous public software artifacts can be transformed into reliable architectural reconstruction when observations are bound to mechanisms independently of product vocabulary.
 
-M1 demonstrated the necessity of that proposition. M1.6 is the test of it.
+That is the falsifiable core.
+
+## Pipeline (no skip)
+
+```
+Evidence → Observation → Mechanism identity → Corroboration → Derivation → CIR projection
+```
+
+No inference step may skip identity.
+
+## Inequalities (invariants)
+
+```
+uncertain observation  ≠  negative architectural claim
+related observations   ≠  same mechanism
+same mechanism         ≠  architectural truth
+architectural truth    ≠  decision
+```
+
+CIR observes, relates, derives, and represents. Consumers (catalog, Codessa) may decide. CIR does not.
 
 ## Ladder
 
 | Step | Question | Result |
 |---|---|---|
 | M0 | Can we represent architecture? | Yes (CIR 1.0.2) |
-| M1 | Can generic discovery find architectural signals in an unseen system? | Yes; local signals are insufficient for reliable derivation |
-| M1.6 | Can explicit mechanism identity turn related observations into justified relationships? | Not yet measured |
+| M1 | Can generic discovery find signals in an unseen system? | Yes; local signals are insufficient for derivation |
+| M1.6 | Does mechanism identity supply the missing constraint? | Not measured |
 
-The pipeline
+M1.6 failure modes that would still be informative: high false-bound (too permissive); excessive abstention (too conservative); binding only when names align (vocabulary not eliminated). Success is binding across renames while rejecting related-but-distinct mechanisms.
 
-```
-observations → identity binding → corroboration → derivation → CIR
-```
+M1 is historical. A later binder may beat those frozen errors; it does not erase them. Smolagents is reopened only after the synthetic corpus is scored.
 
-is legitimate only if M1.6 succeeds. The frozen smolagents corpus is reopened only after that.
+Asymmetric loss: false bound is worse than `insufficient_evidence`. Abstention is legitimate.
 
-M1.6 cannot rewrite M1. A later binder may outperform the original instrument on those frozen failure modes. It does not erase them.
-
-Asymmetric loss: a false bound is worse than `insufficient_evidence`.
-
-Framework CIR remains descriptive and non-authoritative. Binding licenses corroboration. It does not decide architecture, and it is not Codessa.
+Next artifact: a binder that survives `tests/fixtures/identity/cases.json` without product vocabulary — then measurement. Not another feature.

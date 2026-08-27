@@ -12,6 +12,8 @@ from framework_cir.extract import (
     git_head,
     scan_repo,
 )
+from framework_cir.generic import discover
+from framework_cir.models import FieldRecord, Observation
 
 __all__ = [
     "AUTOGEN_RULES",
@@ -19,8 +21,11 @@ __all__ = [
     "CREWAI_RULES",
     "LANGGRAPH_RULES",
     "Anchor",
+    "FieldRecord",
+    "Observation",
     "ScanResult",
     "apply_rules",
+    "discover",
     "emit_cir",
     "git_head",
     "scan_repo",

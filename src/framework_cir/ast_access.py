@@ -47,7 +47,7 @@ def extract_access(source: str, filename: str = "module.py") -> list[Observation
         for item in node.body:
             if not isinstance(item, ast.FunctionDef):
                 continue
-            loc = f"{filename}:{item.name}" if False else f"{filename}:{node.name}.{item.name}"
+            loc = f"{filename}:{node.name}.{item.name}"
             for stmt in item.body:
                 out.extend(_from_stmt(stmt, loc))
     return out

@@ -16,30 +16,25 @@ def _expr(node: ast.AST) -> str:
     return ast.unparse(node).replace(" ", "")
 
 
-def _walk_fn(owner: str, fn: ast.FunctionDef, filename: str) -> list[Observation]:
-    loc = f"{filename}:{owner}.{fn.name}"
+def _from_stmt(stmt: ast.AST, loc: str) -> list[Observation]:
     out: list[Observation] = []
-    for stmt in ast.walk(fn):
-        if isinstance(stmt, ast.AugAssign):
-            out.append(Observation("ast_code_match", f"AUG_ASSIGN {_expr(stmt.target)}", loc))
-        elif isinstance(stmt, ast.Assign):
-            for target in stmt.targets:
-                out.append(Observation("ast_code_match", f"ASSIGN {_expr(target)}", loc))
-        elif isinstance(stmt, ast.Return) and stmt.value is not None:
-            out.append(Observation("ast_code_match", f"RETURN {_expr(stmt.value)}", loc))
-        elif isinstance(stmt, ast.Call) and isinstance(stmt.func, ast.Name) and stmt.func.id == "setattr":
-            if len(stmt.args) >= 2:
-                out.append(
-                    Observation(
-                        "ast_code_match",
-                        f"SETATTR {_expr(stmt.args[0])}.{_expr(stmt.args[1])}",
-                        loc,
-                    )
+    if isinstance(stmt, ast.AugAssign):
+        out.append(Observation("ast_code_match", f"AUG_ASSIGN {_expr(stmt.target)}", loc))
+    elif isinstance(stmt, ast.Assign):
+        for target in stmt.targets:
+            out.append(Observation("ast_code_match", f"ASSIGN {_expr(target)}", loc))
+    elif isinstance(stmt, ast.Return) and stmt.value is not None:
+        out.append(Observation("ast_code_match", f"RETURN {_expr(stmt.value)}", loc))
+    elif isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Call):
+        call = stmt.value
+        if isinstance(call.func, ast.Name) and call.func.id == "setattr" and len(call.args) >= 2:
+            out.append(
+                Observation(
+                    "ast_code_match",
+                    f"SETATTR {_expr(call.args[0])}.{_expr(call.args[1])}",
+                    loc,
                 )
-        elif isinstance(stmt, ast.Subscript) and isinstance(stmt.ctx, ast.Store):
-            out.append(Observation("ast_code_match", f"INDEX_WRITE {_expr(stmt)}", loc))
-        elif isinstance(stmt, ast.Attribute) and isinstance(stmt.ctx, ast.Store):
-            out.append(Observation("ast_code_match", f"ATTR_WRITE {_expr(stmt)}", loc))
+            )
     return out
 
 
@@ -50,8 +45,11 @@ def extract_access(source: str, filename: str = "module.py") -> list[Observation
         if not isinstance(node, ast.ClassDef):
             continue
         for item in node.body:
-            if isinstance(item, ast.FunctionDef):
-                out.extend(_walk_fn(node.name, item, filename))
+            if not isinstance(item, ast.FunctionDef):
+                continue
+            loc = f"{filename}:{item.name}" if False else f"{filename}:{node.name}.{item.name}"
+            for stmt in item.body:
+                out.extend(_from_stmt(stmt, loc))
     return out
 
 
